@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 import numpy as np
 import cv2
 
@@ -93,6 +94,49 @@ async def scan(file: UploadFile = File(...)):
     return {"answers": answers}
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return {"message":"Exam Scanner Running"}
+
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Exam Scanner</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+
+    <h2>Exam Scanner</h2>
+
+    <input type="file" id="file" accept="image/*" capture="environment"/>
+    <button onclick="upload()">Scan</button>
+
+    <pre id="result"></pre>
+
+    <script>
+
+    async function upload(){
+
+      const fileInput = document.getElementById("file")
+
+      if(!fileInput.files.length) return
+
+      const form = new FormData()
+      form.append("file", fileInput.files[0])
+
+      const res = await fetch("/api/scan",{
+        method:"POST",
+        body:form
+      })
+
+      const data = await res.json()
+
+      document.getElementById("result").textContent =
+          JSON.stringify(data,null,2)
+    }
+
+    </script>
+
+    </body>
+    </html>
+    """
