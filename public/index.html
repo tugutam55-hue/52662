@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Exam Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+</head>
+<body>
+
+<h2>Exam Scanner</h2>
+
+<input type="file" id="file" accept="image/*" capture="environment"/>
+<button onclick="upload()">Scan</button>
+
+<pre id="result"></pre>
+
+<script>
+
+async function upload(){
+
+  const fileInput = document.getElementById("file")
+
+  if(!fileInput.files.length) return
+
+  const form = new FormData()
+  form.append("file", fileInput.files[0])
+
+  const res = await fetch("/api/scan",{
+    method:"POST",
+    body:form
+  })
+
+  const data = await res.json()
+
+  document.getElementById("result").textContent =
+      JSON.stringify(data,null,2)
+}
+
+</script>
+
+</body>
+</html>
